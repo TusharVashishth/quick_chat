@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  name       String      @db.VarChar(191)
+  email      String      @unique
+  provider   String
+  oauth_id   String
+  image      String?
+  created_at DateTime    @default(now())
+  ChatGroup  ChatGroup[]
+
+  @@map("users")
+}
+
+model ChatGroup {
+  id         String       @id @default(uuid()) @db.Uuid
+  user       User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id    Int
+  title      String       @db.VarChar(191)
+  passcode   String       @db.VarChar(20)
+  created_at DateTime     @default(now())
+  Chats      Chats[]
+  GroupUsers GroupUsers[]
+
+  @@index([user_id, created_at])
+  @@map("chat_groups")
+}
+
+model GroupUsers {
+  id         Int       @id @default(autoincrement())
+  group      ChatGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group_id   String    @db.Uuid
+  name       String
+  created_at DateTime  @default(now())
+
+  @@map("group_users")
+}
+
+model Chats {
+  id         String    @id @default(uuid())
+  group      ChatGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group_id   String    @db.Uuid
+  message    String?
+  name       String
+  file       String?
+  created_at DateTime  @default(now())
+
+  @@index([created_at])
+  @@map("chats")
+}
