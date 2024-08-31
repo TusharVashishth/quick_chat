@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "start": "node dist/index.js",
     "watch": "tsc -w",
     "server": "nodemon dist/index.js",
